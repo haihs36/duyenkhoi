@@ -244,7 +244,7 @@
                         
                         <!-- Floating Card -->
                         <div class="absolute bottom-6 left-6 right-6 bg-white/95 backdrop-blur-md p-5 rounded-xl shadow-lg border border-slate-100">
-                            <p class="text-slate-800 font-serif font-medium italic text-lg mb-1">"Bình yên đến từ bên trong."</p>
+                            <p class="text-slate-800 font-serif font-medium italic text-lg mb-1">"Tích cực vui thoải mái"</p>
                             <p class="text-xs font-bold text-teal-600 uppercase tracking-widest">MindEdu Inspiration</p>
                         </div>
                     </div>
@@ -257,10 +257,19 @@
     <section id="courses" class="py-20 bg-slate-50 relative">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="text-center mb-12 reveal">
-                <h2 class="text-3xl lg:text-4xl font-serif font-bold text-slate-900 mb-6">Khám Phá Khóa Học</h2>
+                <h2 class="text-3xl lg:text-4xl font-serif font-bold text-slate-900 mb-4">Khám Phá Khóa Học</h2>
                 
+                <!-- Added Creative Description -->
+                <div class="relative inline-block">
+                    <p class="text-slate-500 text-lg font-light max-w-3xl mx-auto leading-relaxed relative z-10">
+                        Hơn 50+ khóa học chuyên sâu giúp bạn <br class="hidden sm:block"> 
+                        <span class="font-medium text-teal-600">sống tỉnh thức</span>, <span class="font-medium text-teal-600">hiểu rõ thân tâm</span> và <span class="font-medium text-teal-600">an trú</span> giữa đời sống nhiều biến động.
+                    </p>
+                    <div class="absolute -top-6 -left-8 text-teal-100 text-6xl opacity-50 z-0 font-serif">“</div>
+                </div>
+
                 <!-- Filter Menu: Clean Buttons -->
-                <div class="flex flex-wrap justify-center gap-3 mt-8">
+                <div class="flex flex-wrap justify-center gap-3 mt-10">
                     <button class="px-6 py-2.5 rounded-full text-sm font-bold bg-teal-600 text-white shadow-md transition-all" onclick="filterCourses('all', this)">
                         Tất cả
                     </button>
@@ -272,6 +281,10 @@
                     </button>
                     <button class="px-6 py-2.5 rounded-full text-sm font-bold bg-white text-slate-500 border border-slate-200 hover:border-teal-400 hover:text-teal-600 transition-all" onclick="filterCourses('healing', this)">
                         Chữa lành
+                    </button>
+                    <!-- New Filter -->
+                    <button class="px-6 py-2.5 rounded-full text-sm font-bold bg-white text-slate-500 border border-slate-200 hover:border-teal-400 hover:text-teal-600 transition-all" onclick="filterCourses('physical', this)">
+                        Vật lý trị liệu
                     </button>
                 </div>
             </div>
@@ -405,7 +418,7 @@
 
     <!-- LOGIC -->
     <script>
-        // COURSE DATA
+        // COURSE DATA - Added "Physical Therapy" Content
         const courses = [
             {
                 id: 1,
@@ -442,13 +455,13 @@
             },
             {
                 id: 4,
-                title: "Yoga Nidra: Giấc ngủ tâm thức",
-                instructor: "Yogi Hạnh Nguyên",
-                duration: "10 Giờ",
-                lessons: 15,
+                title: "Yoga Phục Hồi Cổ Vai Gáy",
+                instructor: "HLV Thảo Nguyên",
+                duration: "14 Ngày",
+                lessons: 14,
                 rating: 4.9,
                 price: "450.000đ",
-                type: "meditation",
+                type: "physical",
                 image: "https://images.unsplash.com/photo-1544367563-12123d8965cd?auto=format&fit=crop&w=600&q=80"
             },
             {
@@ -475,14 +488,14 @@
             },
             {
                 id: 7,
-                title: "Vượt qua Trầm cảm & Lo âu",
-                instructor: "BS.CKII Lê Văn Hùng",
-                duration: "Chuyên sâu",
-                lessons: 40,
+                title: "Somatic Healing: Giải Phóng Cơ Thể",
+                instructor: "BS.CKI Thanh Tâm",
+                duration: "20 Ngày",
+                lessons: 20,
                 rating: 5.0,
-                price: "1.200.000đ",
-                type: "psychology",
-                image: "https://images.unsplash.com/photo-1474418397713-7ede21d49118?auto=format&fit=crop&w=600&q=80"
+                price: "850.000đ",
+                type: "physical",
+                image: "https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=600&q=80"
             },
             {
                 id: 8,
@@ -514,6 +527,7 @@
             filteredCourses.forEach((c, index) => {
                 const badgeColor = c.type === 'meditation' ? 'bg-teal-50 text-teal-600' : 
                                    c.type === 'psychology' ? 'bg-indigo-50 text-indigo-600' :
+                                   c.type === 'physical' ? 'bg-emerald-50 text-emerald-600' :
                                    c.type === 'family' ? 'bg-amber-50 text-amber-600' : 'bg-rose-50 text-rose-600';
                                    
                 const card = document.createElement('div');
@@ -523,7 +537,7 @@
                     <div class="relative h-48 overflow-hidden shrink-0">
                         <img src="${c.image}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" alt="${c.title}" onerror="this.onerror=null; this.src='https://placehold.co/600x400?text=MindEdu'">
                         <div class="absolute top-3 left-3 ${badgeColor} px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider shadow-sm backdrop-blur-md">
-                            ${c.type === 'meditation' ? 'Thiền' : c.type === 'psychology' ? 'Tâm lý' : c.type === 'healing' ? 'Chữa lành' : 'Gia đình'}
+                            ${c.type === 'meditation' ? 'Thiền' : c.type === 'psychology' ? 'Tâm lý' : c.type === 'physical' ? 'Trị liệu thân' : c.type === 'healing' ? 'Chữa lành' : 'Gia đình'}
                         </div>
                     </div>
                     
