@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hệ Thống E-Learning: Phân Tích & Thiết Kế</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #fcfbf9; color: #1f2937; }
+        .nav-active { border-bottom: 2px solid #4f46e5; color: #4f46e5; font-weight: 600; }
+        .card-hover { transition: all 0.3s ease; }
+        .card-hover:hover { transform: translateY(-4px); box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); }
+        /* Custom scrollbar for better aesthetics */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #c7c7c7; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #a0a0a0; }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container { height: 350px; }
+        }
+    </style>
+    <!-- Chosen Palette: Warm Neutrals & Indigo -->
+    <!-- Application Structure Plan: 
+         Designed as a "Digital Project Blueprint" dashboard. 
+         1. Hero: Overview. 
+         2. Personas: Interactive cards to understand user needs deeply. 
+         3. Features: Tabbed interface to separate complex requirements by role.
+         4. Architecture: Visual block diagrams (HTML/CSS) and a Radar Chart to compare tech solutions (Self-build vs Service) based on report analysis.
+         5. Database: Master-detail view for schema exploration.
+         6. Roadmap & Risks: Timeline visualization and risk cards.
+         Why: This structure breaks down the dense technical report into digestible, logical sections, allowing stakeholders to focus on specific aspects (e.g., Business vs. Tech) without losing context.
+    -->
+    <!-- Visualization & Content Choices:
+         1. Radar Chart (Chart.js): To compare "Option 1 (Self-build)" vs "Option 2 (Service)" in the Architecture section. Justification: Visualizes the trade-offs (Cost vs Effort vs Security) mentioned in the text clearly.
+         2. Horizontal Bar Chart (Chart.js): To visualize the "Roadmap" phases and their estimated relative complexity. Justification: Gives a quick sense of project scope over time.
+         3. Interactive Flow Diagram (HTML/Tailwind): For the VOD/Livestream technical flow. Justification: Replaces static images/Mermaid to show data flow clearly using standard DOM elements.
+         4. Tabbed Lists: For Functional Requirements. Justification: Prevents information overload by hiding irrelevant role details.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+</head>
+<body class="antialiased selection:bg-indigo-100 selection:text-indigo-800">
+
+    <!-- Navigation -->
+    <nav class="sticky top-0 z-50 bg-white/90 backdrop-blur-md shadow-sm border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between h-16">
+                <div class="flex items-center">
+                    <span class="text-xl font-bold text-indigo-700 tracking-tight">E-Learning System</span>
+                </div>
+                <div class="hidden md:flex space-x-8 items-center" id="nav-links">
+                    <a href="#overview" class="nav-item text-gray-500 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors" data-target="overview">Tổng Quan</a>
+                    <a href="#personas" class="nav-item text-gray-500 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors" data-target="personas">Người Dùng</a>
+                    <a href="#features" class="nav-item text-gray-500 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors" data-target="features">Tính Năng</a>
+                    <a href="#architecture" class="nav-item text-gray-500 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors" data-target="architecture">Kiến Trúc</a>
+                    <a href="#database" class="nav-item text-gray-500 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors" data-target="database">Cơ Sở Dữ Liệu</a>
+                    <a href="#roadmap" class="nav-item text-gray-500 hover:text-indigo-600 px-3 py-2 text-sm font-medium transition-colors" data-target="roadmap">Lộ Trình</a>
+                </div>
+                <!-- Mobile menu button placeholder -->
+                <div class="flex items-center md:hidden">
+                    <button id="mobile-menu-btn" class="text-gray-500 hover:text-indigo-600 focus:outline-none p-2">
+                        ☰
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Mobile Menu -->
+        <div id="mobile-menu" class="hidden md:hidden bg-white border-t border-gray-100">
+            <div class="px-2 pt-2 pb-3 space-y-1">
+                <a href="#overview" class="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-indigo-600 rounded-md">Tổng Quan</a>
+                <a href="#personas" class="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-indigo-600 rounded-md">Người Dùng</a>
+                <a href="#features" class="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-indigo-600 rounded-md">Tính Năng</a>
+                <a href="#architecture" class="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-indigo-600 rounded-md">Kiến Trúc</a>
+                <a href="#roadmap" class="block px-3 py-2 text-base font-medium text-gray-700 hover:bg-gray-50 hover:text-indigo-600 rounded-md">Lộ Trình</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
+
+        <!-- Section: Overview -->
+        <section id="overview" class="scroll-mt-24">
+            <div class="bg-gradient-to-br from-indigo-50 to-white rounded-2xl p-8 border border-indigo-100 shadow-sm">
+                <h1 class="text-3xl md:text-4xl font-extrabold text-gray-900 mb-4">
+                    Nền Tảng E-Learning: VOD & Livestream
+                </h1>
+                <p class="text-lg text-gray-600 leading-relaxed max-w-3xl">
+                    Bản thiết kế chi tiết cho hệ thống LMS (Learning Management System) hiện đại. 
+                    Mục tiêu là xây dựng nền tảng kết nối giảng viên và học viên thông qua video chất lượng cao và tương tác trực tiếp, 
+                    giải quyết bài toán về bản quyền, băng thông và trải nghiệm người dùng.
+                </p>
+                <div class="mt-6 grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 flex items-center shadow-sm">
+                        <div class="w-10 h-10 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xl mr-3">▶</div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Video on Demand</h3>
+                            <p class="text-xs text-gray-500">Học mọi lúc mọi nơi</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 flex items-center shadow-sm">
+                        <div class="w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center text-xl mr-3">●</div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Livestream</h3>
+                            <p class="text-xs text-gray-500">Tương tác thời gian thực</p>
+                        </div>
+                    </div>
+                    <div class="bg-white p-4 rounded-xl border border-gray-200 flex items-center shadow-sm">
+                        <div class="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center text-xl mr-3">★</div>
+                        <div>
+                            <h3 class="font-semibold text-gray-900">Ecosystem</h3>
+                            <p class="text-xs text-gray-500">Web, Mobile & Affiliate</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: User Personas -->
+        <section id="personas" class="scroll-mt-24">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">Đối Tượng Người Dùng</h2>
+                <p class="text-gray-500 mt-2">Phân tích hành vi và nhu cầu của 3 nhóm người dùng chính để tối ưu hóa trải nghiệm.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6" id="persona-container">
+                <!-- Cards will be injected by JS -->
+            </div>
+        </section>
+
+        <!-- Section: Functional Requirements -->
+        <section id="features" class="scroll-mt-24">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-6">
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900">Chức Năng Cốt Lõi</h2>
+                    <p class="text-gray-500 mt-1">Chi tiết các phân hệ chức năng cho từng đối tượng.</p>
+                </div>
+                <!-- Tabs -->
+                <div class="flex space-x-1 bg-gray-100 p-1 rounded-lg mt-4 md:mt-0 self-start md:self-auto">
+                    <button class="feature-tab px-4 py-2 text-sm font-medium rounded-md bg-white text-indigo-600 shadow-sm transition-all" data-role="student">Học Viên</button>
+                    <button class="feature-tab px-4 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-700 transition-all" data-role="instructor">Giảng Viên</button>
+                    <button class="feature-tab px-4 py-2 text-sm font-medium rounded-md text-gray-500 hover:text-gray-700 transition-all" data-role="admin">Quản Trị</button>
+                </div>
+            </div>
+
+            <div id="feature-content" class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 min-h-[300px]">
+                <!-- Content injected by JS -->
+            </div>
+        </section>
+
+        <!-- Section: Technical Architecture -->
+        <section id="architecture" class="scroll-mt-24">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">Kiến Trúc Kỹ Thuật & Video</h2>
+                <p class="text-gray-500 mt-2">Phân tích giải pháp lưu trữ, streaming và so sánh các lựa chọn triển khai.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Chart Col -->
+                <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6 flex flex-col">
+                    <h3 class="text-lg font-semibold text-gray-900 mb-4 text-center">So Sánh Giải Pháp Video</h3>
+                    <p class="text-sm text-gray-500 text-center mb-4">So sánh giữa Tự xây dựng (Self-build) và Dịch vụ chuyên biệt (SaaS)</p>
+                    <div class="chart-container flex-grow flex items-center justify-center">
+                        <canvas id="archRadarChart"></canvas>
+                    </div>
+                    <div class="mt-4 p-3 bg-indigo-50 rounded-lg text-sm text-indigo-800 border border-indigo-100">
+                        <strong>Khuyên dùng Option 2:</strong> Sử dụng Mux/Cloudflare Stream để tối ưu bảo mật (DRM) và giảm gánh nặng vận hành.
+                    </div>
+                </div>
+
+                <!-- Diagram Col -->
+                <div class="space-y-6">
+                    <!-- VOD Flow -->
+                    <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+                        <h3 class="text-lg font-semibold text-gray-900 mb-4">Luồng Xử Lý Video (VOD)</h3>
+                        <div class="flex flex-col space-y-3 relative">
+                            <!-- Step 1 -->
+                            <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                <span class="bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mr-3">1</span>
+                                <div class="flex-1">
+                                    <span class="font-medium text-gray-900">Giảng viên Upload</span>
+                                    <div class="text-xs text-gray-500">Chunking upload, hỗ trợ file lớn</div>
+                                </div>
+                            </div>
+                            <!-- Arrow -->
+                            <div class="flex justify-center -my-1 text-gray-300 text-xl">↓</div>
+                            <!-- Step 2 -->
+                            <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                <span class="bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mr-3">2</span>
+                                <div class="flex-1">
+                                    <span class="font-medium text-gray-900">Lưu Trữ & Transcode</span>
+                                    <div class="text-xs text-gray-500">S3 / MediaConvert -> HLS (.m3u8) đa độ phân giải</div>
+                                </div>
+                            </div>
+                            <!-- Arrow -->
+                            <div class="flex justify-center -my-1 text-gray-300 text-xl">↓</div>
+                            <!-- Step 3 -->
+                            <div class="flex items-center p-3 bg-gray-50 rounded-lg border border-gray-200">
+                                <span class="bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mr-3">3</span>
+                                <div class="flex-1">
+                                    <span class="font-medium text-gray-900">Phân Phối (CDN)</span>
+                                    <div class="text-xs text-gray-500">CloudFront / CDN chuyên biệt giúp tải nhanh</div>
+                                </div>
+                            </div>
+                            <!-- Arrow -->
+                            <div class="flex justify-center -my-1 text-gray-300 text-xl">↓</div>
+                            <!-- Step 4 -->
+                            <div class="flex items-center p-3 bg-indigo-50 rounded-lg border border-indigo-200">
+                                <span class="bg-indigo-600 text-white w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold mr-3">4</span>
+                                <div class="flex-1">
+                                    <span class="font-medium text-indigo-900">Học Viên Xem (Player)</span>
+                                    <div class="text-xs text-indigo-600">Adaptive Bitrate (Tự chỉnh chất lượng theo mạng)</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tech Stack Tags -->
+            <div class="mt-8">
+                <h3 class="text-lg font-semibold text-gray-900 mb-3">Tech Stack Đề Xuất</h3>
+                <div class="flex flex-wrap gap-2" id="tech-stack-container">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Database Schema -->
+        <section id="database" class="scroll-mt-24">
+            <div class="mb-6">
+                <h2 class="text-2xl font-bold text-gray-900">Cấu Trúc Dữ Liệu</h2>
+                <p class="text-gray-500 mt-2">Mô hình quan hệ thực thể (ERD Concept) cơ bản cho hệ thống.</p>
+            </div>
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+                <!-- Table List -->
+                <div class="col-span-1 bg-gray-50 border-r border-gray-200 p-4">
+                    <h3 class="text-xs font-bold text-gray-400 uppercase tracking-wider mb-3">Tables</h3>
+                    <div class="space-y-2" id="db-table-list">
+                        <!-- List injected by JS -->
+                    </div>
+                </div>
+                <!-- Field Details -->
+                <div class="col-span-1 md:col-span-2 p-6">
+                    <div id="db-table-details">
+                        <h3 class="text-lg font-bold text-gray-900 mb-4 flex items-center">
+                            <span class="text-indigo-600 mr-2">📂</span> Chọn một bảng để xem chi tiết
+                        </h3>
+                        <p class="text-gray-400 text-sm">Thông tin chi tiết về các trường dữ liệu và kiểu dữ liệu sẽ hiển thị ở đây.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Section: Roadmap & Risks -->
+        <section id="roadmap" class="scroll-mt-24">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <!-- Roadmap -->
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">Lộ Trình Phát Triển</h2>
+                    <p class="text-gray-500 mb-6">Kế hoạch triển khai theo 3 giai đoạn chính.</p>
+                    
+                    <div class="chart-container">
+                         <canvas id="roadmapChart"></canvas>
+                    </div>
+                    <div class="mt-4 space-y-4">
+                        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative pl-6">
+                            <div class="absolute left-0 top-0 bottom-0 w-2 bg-blue-500 rounded-l-xl"></div>
+                            <h4 class="font-bold text-gray-900">Giai đoạn 1: MVP</h4>
+                            <p class="text-sm text-gray-600 mt-1">VOD cơ bản, Upload video, Thanh toán đơn giản.</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative pl-6">
+                            <div class="absolute left-0 top-0 bottom-0 w-2 bg-purple-500 rounded-l-xl"></div>
+                            <h4 class="font-bold text-gray-900">Giai đoạn 2: Tương Tác</h4>
+                            <p class="text-sm text-gray-600 mt-1">Livestream, Chat Realtime, Hệ thống thông báo.</p>
+                        </div>
+                        <div class="bg-white p-4 rounded-xl border border-gray-200 shadow-sm relative pl-6">
+                            <div class="absolute left-0 top-0 bottom-0 w-2 bg-green-500 rounded-l-xl"></div>
+                            <h4 class="font-bold text-gray-900">Giai đoạn 3: Hệ Sinh Thái</h4>
+                            <p class="text-sm text-gray-600 mt-1">Mobile App, Gamification, Affiliate Marketing.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Risks -->
+                <div>
+                    <h2 class="text-2xl font-bold text-gray-900 mb-4">Rủi Ro & Giải Pháp</h2>
+                    <p class="text-gray-500 mb-6">Các vấn đề kỹ thuật và vận hành cần lưu ý.</p>
+                    
+                    <div class="space-y-4">
+                        <div class="bg-amber-50 rounded-xl p-5 border border-amber-100">
+                            <div class="flex items-start">
+                                <div class="text-amber-600 text-xl mr-3">⚠️</div>
+                                <div>
+                                    <h4 class="font-bold text-amber-900">Bản Quyền Video</h4>
+                                    <p class="text-sm text-amber-800 mt-1 mb-2">Nguy cơ bị tải lậu hoặc quay màn hình.</p>
+                                    <div class="bg-white/60 p-2 rounded text-xs text-amber-900 font-medium">
+                                        💡 Giải pháp: Dùng Encrypted HLS, DRM, Watermark động.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-amber-50 rounded-xl p-5 border border-amber-100">
+                            <div class="flex items-start">
+                                <div class="text-amber-600 text-xl mr-3">💰</div>
+                                <div>
+                                    <h4 class="font-bold text-amber-900">Chi Phí Băng Thông</h4>
+                                    <p class="text-sm text-amber-800 mt-1 mb-2">Video tốn nhiều lưu lượng, chi phí server cao.</p>
+                                    <div class="bg-white/60 p-2 rounded text-xs text-amber-900 font-medium">
+                                        💡 Giải pháp: Tính toán kỹ giá khóa học vs chi phí CDN/Phút xem.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="bg-amber-50 rounded-xl p-5 border border-amber-100">
+                            <div class="flex items-start">
+                                <div class="text-amber-600 text-xl mr-3">📉</div>
+                                <div>
+                                    <h4 class="font-bold text-amber-900">Độ Trễ Livestream</h4>
+                                    <p class="text-sm text-amber-800 mt-1 mb-2">Độ trễ cao làm mất tính tương tác.</p>
+                                    <div class="bg-white/60 p-2 rounded text-xs text-amber-900 font-medium">
+                                        💡 Giải pháp: Dùng WebRTC hoặc dịch vụ chuyên biệt (Agora/Mux) để trễ < 3s.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="border-t border-gray-200 py-8 mt-12">
+            <div class="text-center text-gray-400 text-sm">
+                <p>&copy; 2024 E-Learning System Architecture Analysis.</p>
+            </div>
+        </footer>
+
+    </main>
+
+    <script>
+        // --- DATA STORE ---
+        const data = {
+            personas: [
+                {
+                    id: 'student',
+                    title: 'Học Viên (Student)',
+                    icon: '🎓',
+                    needs: ['Tìm khóa học dễ dàng', 'Xem video mượt mà, không lag', 'Tương tác & hỏi đáp', 'Theo dõi tiến độ học'],
+                    behavior: ['Sử dụng cả Web & Mobile', 'Thiếu kiên nhẫn nếu web chậm', 'Thích nội dung ngắn gọn'],
+                    color: 'blue'
+                },
+                {
+                    id: 'instructor',
+                    title: 'Giảng Viên (Instructor)',
+                    icon: '👨‍🏫',
+                    needs: ['Công cụ tạo khóa học dễ dùng', 'Upload video file lớn ổn định', 'Báo cáo doanh thu chi tiết', 'Tổ chức Livestream'],
+                    behavior: ['Cần trình soạn thảo WYSIWYG', 'Quan tâm đến bảo vệ bản quyền'],
+                    color: 'emerald'
+                },
+                {
+                    id: 'admin',
+                    title: 'Quản Trị Viên (Admin)',
+                    icon: '🛡️',
+                    needs: ['Kiểm duyệt nội dung', 'Quản lý người dùng xấu', 'Đối soát tài chính', 'Cấu hình hệ thống'],
+                    behavior: ['Cần dashboard tổng quan', 'Xử lý khiếu nại'],
+                    color: 'purple'
+                }
+            ],
+            features: {
+                student: {
+                    title: 'Phân hệ Học Viên',
+                    desc: 'Trải nghiệm học tập trung tâm.',
+                    items: [
+                        { name: 'Xác thực', detail: 'Đăng nhập Email, Google, Facebook.' },
+                        { name: 'Khám phá (Discovery)', detail: 'Tìm kiếm (Elasticsearch), Lọc giá/đánh giá, Gợi ý khóa học.' },
+                        { name: 'Video Player', detail: 'Adaptive Bitrate (360p-1080p), Tự động lưu tiến độ.' },
+                        { name: 'Livestream', detail: 'Xem live độ trễ thấp, Chat realtime, Giơ tay phát biểu.' },
+                        { name: 'Tài liệu & Quiz', detail: 'Tải PDF/Slide, Làm bài tập trắc nghiệm tự chấm.' },
+                        { name: 'Thanh toán', detail: 'Tích hợp Momo, VNPAY, Stripe.' }
+                    ]
+                },
+                instructor: {
+                    title: 'Phân hệ Giảng Viên',
+                    desc: 'Công cụ sáng tạo nội dung.',
+                    items: [
+                        { name: 'Studio Khóa Học', detail: 'Tạo đề cương, Upload video (Chunking - chia nhỏ file).' },
+                        { name: 'Livestream Control', detail: 'Tạo phòng, lấy RTMP key stream từ OBS hoặc Browser.' },
+                        { name: 'Analytics', detail: 'Biểu đồ doanh thu, số lượng học viên, tỷ lệ hoàn thành.' }
+                    ]
+                },
+                admin: {
+                    title: 'Phân hệ Quản Trị',
+                    desc: 'Kiểm soát và vận hành.',
+                    items: [
+                        { name: 'CMS', detail: 'Duyệt khóa học trước khi public.' },
+                        { name: 'User Management', detail: 'Khóa tài khoản vi phạm chính sách.' },
+                        { name: 'Finance', detail: 'Đối soát doanh thu, chia sẻ lợi nhuận.' }
+                    ]
+                }
+            },
+            techStack: [
+                { name: 'React.js / Next.js', type: 'Frontend', color: 'bg-blue-100 text-blue-800' },
+                { name: 'Node.js / NestJS', type: 'Backend', color: 'bg-green-100 text-green-800' },
+                { name: 'PostgreSQL', type: 'Database', color: 'bg-indigo-100 text-indigo-800' },
+                { name: 'MongoDB / Redis', type: 'Database', color: 'bg-indigo-100 text-indigo-800' },
+                { name: 'Docker / K8s', type: 'Infra', color: 'bg-gray-100 text-gray-800' },
+                { name: 'AWS S3', type: 'Storage', color: 'bg-yellow-100 text-yellow-800' },
+                { name: 'WebRTC / RTMP', type: 'Protocol', color: 'bg-red-100 text-red-800' },
+                { name: 'Elasticsearch', type: 'Search', color: 'bg-purple-100 text-purple-800' }
+            ],
+            database: [
+                { 
+                    name: 'Users', 
+                    desc: 'Lưu thông tin người dùng',
+                    fields: [
+                        { name: 'ID', type: 'UUID/Int', note: 'Primary Key' },
+                        { name: 'Name', type: 'String', note: 'Họ tên hiển thị' },
+                        { name: 'Role', type: 'Enum', note: 'Student, Instructor, Admin' },
+                        { name: 'Email', type: 'String', note: 'Unique' },
+                        { name: 'PasswordHash', type: 'String', note: 'Bcrypt/Argon2' }
+                    ]
+                },
+                { 
+                    name: 'Courses', 
+                    desc: 'Thông tin khóa học',
+                    fields: [
+                        { name: 'ID', type: 'UUID', note: 'PK' },
+                        { name: 'Title', type: 'String', note: '' },
+                        { name: 'Description', type: 'Text', note: 'HTML/Markdown' },
+                        { name: 'InstructorID', type: 'UUID', note: 'FK -> Users' },
+                        { name: 'Price', type: 'Decimal', note: '' },
+                        { name: 'ThumbnailUrl', type: 'String', note: '' }
+                    ]
+                },
+                { 
+                    name: 'Lessons', 
+                    desc: 'Bài học chi tiết',
+                    fields: [
+                        { name: 'ID', type: 'UUID', note: 'PK' },
+                        { name: 'ChapterID', type: 'UUID', note: 'FK -> Chapters' },
+                        { name: 'Type', type: 'Enum', note: 'Video, Quiz, Live' },
+                        { name: 'VideoUrl', type: 'String', note: 'Link HLS (.m3u8)' },
+                        { name: 'Duration', type: 'Int', note: 'Seconds' }
+                    ]
+                },
+                { 
+                    name: 'Enrollments', 
+                    desc: 'Quản lý việc tham gia học',
+                    fields: [
+                        { name: 'ID', type: 'UUID', note: 'PK' },
+                        { name: 'UserID', type: 'UUID', note: 'FK -> Users' },
+                        { name: 'CourseID', type: 'UUID', note: 'FK -> Courses' },
+                        { name: 'Progress', type: 'Float', note: '0-100%' },
+                        { name: 'PurchaseDate', type: 'DateTime', note: '' }
+                    ]
+                }
+            ]
+        };
+
+        // --- RENDER FUNCTIONS ---
+
+        function renderPersonas() {
+            const container = document.getElementById('persona-container');
+            container.innerHTML = data.personas.map(p => `
+                <div class="bg-white rounded-xl p-6 border border-gray-100 card-hover cursor-pointer" onclick="togglePersona('${p.id}')">
+                    <div class="flex items-center mb-4">
+                        <div class="w-12 h-12 rounded-full bg-${p.color}-100 flex items-center justify-center text-2xl mr-4">${p.icon}</div>
+                        <h3 class="text-xl font-bold text-gray-900">${p.title}</h3>
+                    </div>
+                    <div class="space-y-3">
+                        <div>
+                            <span class="text-xs font-bold text-${p.color}-600 uppercase tracking-wide">Nhu cầu</span>
+                            <ul class="mt-1 space-y-1">
+                                ${p.needs.map(n => `<li class="text-sm text-gray-600 flex items-start"><span class="mr-2 text-${p.color}-500">•</span>${n}</li>`).join('')}
+                            </ul>
+                        </div>
+                        <div class="pt-2 border-t border-gray-100">
+                            <span class="text-xs font-bold text-gray-400 uppercase tracking-wide">Hành vi</span>
+                             <ul class="mt-1 space-y-1">
+                                ${p.behavior.map(b => `<li class="text-sm text-gray-500 italic flex items-start"><span class="mr-2 text-gray-300">-</span>${b}</li>`).join('')}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderFeatures(role) {
+            const content = data.features[role];
+            const container = document.getElementById('feature-content');
+            
+            // Update tabs state
+            document.querySelectorAll('.feature-tab').forEach(btn => {
+                if(btn.dataset.role === role) {
+                    btn.classList.add('bg-white', 'text-indigo-600', 'shadow-sm');
+                    btn.classList.remove('text-gray-500', 'hover:text-gray-700');
+                } else {
+                    btn.classList.remove('bg-white', 'text-indigo-600', 'shadow-sm');
+                    btn.classList.add('text-gray-500', 'hover:text-gray-700');
+                }
+            });
+
+            container.innerHTML = `
+                <div class="animate-fade-in">
+                    <div class="mb-4">
+                        <h3 class="text-xl font-bold text-gray-900">${content.title}</h3>
+                        <p class="text-gray-500 text-sm">${content.desc}</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        ${content.items.map(item => `
+                            <div class="p-4 rounded-lg bg-gray-50 border border-gray-100 hover:bg-indigo-50 hover:border-indigo-100 transition-colors">
+                                <h4 class="font-semibold text-gray-800 text-sm mb-1">${item.name}</h4>
+                                <p class="text-xs text-gray-600 leading-relaxed">${item.detail}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        function renderTechStack() {
+            const container = document.getElementById('tech-stack-container');
+            container.innerHTML = data.techStack.map(tech => `
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${tech.color} border border-opacity-20 border-current">
+                    ${tech.name}
+                </span>
+            `).join('');
+        }
+
+        function renderDatabaseList() {
+            const listContainer = document.getElementById('db-table-list');
+            listContainer.innerHTML = data.database.map((table, index) => `
+                <button onclick="showTableDetails(${index})" class="w-full text-left px-3 py-2 rounded-md text-sm font-medium text-gray-600 hover:bg-white hover:text-indigo-600 hover:shadow-sm transition-all focus:outline-none focus:bg-white focus:text-indigo-600 ${index === 0 ? 'bg-white text-indigo-600 shadow-sm' : ''}">
+                    ${table.name}
+                </button>
+            `).join('');
+            
+            // Show first table by default
+            showTableDetails(0);
+        }
+
+        function showTableDetails(index) {
+            const table = data.database[index];
+            const detailsContainer = document.getElementById('db-table-details');
+            
+            // Highlight active button visually (simple approach)
+            const buttons = document.getElementById('db-table-list').children;
+            Array.from(buttons).forEach((btn, idx) => {
+                if(idx === index) {
+                    btn.classList.add('bg-white', 'text-indigo-600', 'shadow-sm');
+                } else {
+                    btn.classList.remove('bg-white', 'text-indigo-600', 'shadow-sm');
+                }
+            });
+
+            detailsContainer.innerHTML = `
+                <div class="animate-fade-in">
+                    <div class="flex items-baseline justify-between mb-4 border-b border-gray-100 pb-2">
+                        <h3 class="text-xl font-bold text-gray-900">${table.name}</h3>
+                        <span class="text-sm text-gray-500">${table.desc}</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="min-w-full text-sm text-left">
+                            <thead class="bg-gray-50 text-gray-500 font-medium">
+                                <tr>
+                                    <th class="px-4 py-2 rounded-l-md">Field Name</th>
+                                    <th class="px-4 py-2">Type</th>
+                                    <th class="px-4 py-2 rounded-r-md">Note</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-gray-100">
+                                ${table.fields.map(f => `
+                                    <tr>
+                                        <td class="px-4 py-3 font-medium text-gray-800">${f.name}</td>
+                                        <td class="px-4 py-3 text-indigo-600 font-mono text-xs">${f.type}</td>
+                                        <td class="px-4 py-3 text-gray-500 italic">${f.note}</td>
+                                    </tr>
+                                `).join('')}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            `;
+        }
+
+        // --- CHARTS ---
+
+        function initCharts() {
+            // 1. Radar Chart: Tech Architecture Comparison
+            const ctxRadar = document.getElementById('archRadarChart').getContext('2d');
+            new Chart(ctxRadar, {
+                type: 'radar',
+                data: {
+                    labels: ['Chi phí khởi tạo', 'Chi phí vận hành', 'Bảo mật (DRM)', 'Dễ triển khai', 'Khả năng mở rộng'],
+                    datasets: [
+                        {
+                            label: 'Option 1: Tự Build (AWS S3/FFmpeg)',
+                            data: [70, 90, 40, 30, 60], // High setup cost, High maint, Low security default, Hard setup, Med scale
+                            fill: true,
+                            backgroundColor: 'rgba(156, 163, 175, 0.2)',
+                            borderColor: 'rgb(156, 163, 175)',
+                            pointBackgroundColor: 'rgb(156, 163, 175)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(156, 163, 175)'
+                        },
+                        {
+                            label: 'Option 2: Dịch Vụ (Mux/Cloudflare)',
+                            data: [20, 30, 95, 90, 95], // Low setup, Low maint, High security, Easy setup, High scale
+                            fill: true,
+                            backgroundColor: 'rgba(79, 70, 229, 0.2)',
+                            borderColor: 'rgb(79, 70, 229)',
+                            pointBackgroundColor: 'rgb(79, 70, 229)',
+                            pointBorderColor: '#fff',
+                            pointHoverBackgroundColor: '#fff',
+                            pointHoverBorderColor: 'rgb(79, 70, 229)'
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        r: {
+                            angleLines: { display: false },
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                            ticks: { display: false } // Hide numbers for cleaner look
+                        }
+                    },
+                    plugins: {
+                        legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } },
+                        tooltip: { callbacks: { label: (ctx) => `${ctx.dataset.label}: ${ctx.raw}/100 điểm` } }
+                    }
+                }
+            });
+
+            // 2. Bar Chart: Roadmap Timeline/Complexity
+            const ctxRoadmap = document.getElementById('roadmapChart').getContext('2d');
+            new Chart(ctxRoadmap, {
+                type: 'bar',
+                data: {
+                    labels: ['GĐ 1: MVP', 'GĐ 2: Tương Tác', 'GĐ 3: Hệ Sinh Thái'],
+                    datasets: [{
+                        label: 'Độ phức tạp ước tính & Thời gian',
+                        data: [40, 70, 90], // Estimated relative values
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.7)', // Blue
+                            'rgba(168, 85, 247, 0.7)', // Purple
+                            'rgba(34, 197, 94, 0.7)'   // Green
+                        ],
+                        borderColor: [
+                            'rgb(59, 130, 246)',
+                            'rgb(168, 85, 247)',
+                            'rgb(34, 197, 94)'
+                        ],
+                        borderWidth: 1,
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y', // Horizontal bar chart
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        x: { display: false, max: 100 },
+                        y: { grid: { display: false } }
+                    },
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { 
+                            callbacks: { 
+                                label: (ctx) => {
+                                    const tasks = [
+                                        ['VOD', 'Thanh toán cơ bản'],
+                                        ['Livestream', 'Chat Realtime', 'Thông báo'],
+                                        ['Mobile Apps', 'Gamification', 'Affiliate']
+                                    ];
+                                    return `Bao gồm: ${tasks[ctx.dataIndex].join(', ')}`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // --- INIT ---
+        document.addEventListener('DOMContentLoaded', () => {
+            renderPersonas();
+            renderFeatures('student'); // Default tab
+            renderTechStack();
+            renderDatabaseList();
+            initCharts();
+
+            // Tab Click Events
+            document.querySelectorAll('.feature-tab').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    renderFeatures(e.target.dataset.role);
+                });
+            });
+
+            // Smooth Scroll for Nav
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    document.querySelector(this.getAttribute('href')).scrollIntoView({
+                        behavior: 'smooth'
+                    });
+                });
+            });
+
+            // Intersection Observer for Nav Highlighting
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        document.querySelectorAll('.nav-item').forEach(link => {
+                            link.classList.remove('nav-active');
+                            if (link.getAttribute('href') === '#' + entry.target.id) {
+                                link.classList.add('nav-active');
+                            }
+                        });
+                    }
+                });
+            }, { threshold: 0.5 });
+
+            document.querySelectorAll('section').forEach(section => {
+                observer.observe(section);
+            });
+            
+            // Mobile Menu Toggle
+            const mobileBtn = document.getElementById('mobile-menu-btn');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileBtn.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+        });
+
+    </script>
+</body>
+</html>
